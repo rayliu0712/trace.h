@@ -45,11 +45,11 @@ void* trace_impl(TRACE) {
         stack = realloc(stack, max_size);
     }
 
-    size_t file_len = strlen(trace_file);
+    size_t file_len = strlen(trace_file) + 1;
     stack[size].file = malloc(file_len);
     strncpy(stack[size].file, trace_file, file_len);
 
-    size_t func_len = strlen(trace_func);
+    size_t func_len = strlen(trace_func) + 1;
     stack[size].func = malloc(func_len);
     strncpy(stack[size].func, trace_func, func_len);
 
@@ -70,7 +70,7 @@ void untrace(void**) {
 
 void panic_impl(TRACE, bool expr, const char* fmt, ...) {
     check_init();
-    if (!expr)
+    if (expr)
         return;
 
     trace_impl(trace_file, trace_func, trace_line);

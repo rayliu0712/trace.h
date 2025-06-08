@@ -4,7 +4,7 @@
 double divide(TRACE, int a, int b) {
     trace();
 
-    panic(b == 0, "divisor should not be 0");
+    panic(b != 0, "divisor should not be 0");
     return (double)a / b;
 }
 
