@@ -4,76 +4,55 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NULLNULL ((void**)0)
-
 typedef struct {
     char* file;
     char* func;
     int line;
 } Trace;
 
-Trace* stack = NULL;
-size_t size = 0;
-size_t max_size = 128;
-const size_t step = 128;
+static Trace* stack = NULL;
+static size_t size = 0;
+static size_t max_size = 128;
+static const size_t step = 128;
 
-void* trace_init_impl(void) {
-    stack = malloc(max_size * sizeof(Trace));
-    return NULL;
-}
-
-static void check_init(void) {
-    if (!stack) {
-        fprintf(stderr, "\n[ERROR] You forgot to trace_init()\n");
-        exit(EXIT_FAILURE);
-    }
-}
-
-void trace_free(void**) {
-    check_init();
-
+__attribute__((destructor)) static void trace_free(void) {
     while (size)
-        untrace(NULLNULL);
+        trace_pop();
     free(stack);
 }
 
-void* trace_impl(TRACE) {
-    check_init();
+void trace_push(TRACE) {
+    if (!stack) {
+        stack = malloc(max_size * sizeof(Trace));
+    }
 
     if (size == max_size) {
         max_size += step;
-        stack = realloc(stack, max_size);
+        stack = realloc(stack, max_size * sizeof(Trace));
     }
 
-    size_t file_len = strlen(trace_file) + 1;
-    stack[size].file = malloc(file_len);
-    strncpy(stack[size].file, trace_file, file_len);
+    stack[size].file = malloc(strlen(file) + 1);
+    strcpy(stack[size].file, file);
 
-    size_t func_len = strlen(trace_func) + 1;
-    stack[size].func = malloc(func_len);
-    strncpy(stack[size].func, trace_func, func_len);
+    stack[size].func = malloc(strlen(func) + 1);
+    strcpy(stack[size].func, func);
 
-    stack[size].line = trace_line;
+    stack[size].line = line;
 
     size++;
-
-    return NULL;
 }
 
-void untrace(void**) {
-    check_init();
-
+void trace_pop(void) {
     size--;
     free(stack[size].file);
     free(stack[size].func);
 }
 
 void panic_impl(TRACE, bool expr, const char* fmt, ...) {
-    check_init();
     if (expr)
         return;
 
-    trace_impl(trace_file, trace_func, trace_line);
+    trace_push(file, func, line);
 
     va_list args;
     va_start(args, fmt);
@@ -90,6 +69,5 @@ void panic_impl(TRACE, bool expr, const char* fmt, ...) {
 
     va_end(args);
 
-    trace_free(NULLNULL);
     exit(EXIT_FAILURE);
 }
