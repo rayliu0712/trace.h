@@ -36,4 +36,6 @@ void panic_impl(TRACE, bool expr, const char* fmt, ...);
 
 #define null_panic(ptr) panic((ptr), "pointer \"%s\" is NULL", #ptr)
 
+#undef TRACE
+
 #endif

@@ -1,8 +1,11 @@
+#define _POSIX_C_SOURCE 200809L
 #include "trace.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define TRACE const char *file, const char *func, int line
 
 typedef struct {
     char* file;
@@ -31,12 +34,8 @@ void trace_push(TRACE) {
         stack = realloc(stack, max_size * sizeof(Trace));
     }
 
-    stack[size].file = malloc(strlen(file) + 1);
-    strcpy(stack[size].file, file);
-
-    stack[size].func = malloc(strlen(func) + 1);
-    strcpy(stack[size].func, func);
-
+    stack[size].file = strdup(file);
+    stack[size].func = strdup(func);
     stack[size].line = line;
 
     size++;
