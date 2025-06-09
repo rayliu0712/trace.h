@@ -1,15 +1,13 @@
-#define _POSIX_C_SOURCE 200809L
 #include "trace.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #define TRACE const char *file, const char *func, int line
 
 typedef struct {
-    char* file;
-    char* func;
+    const char* file;
+    const char* func;
     int line;
 } Trace;
 
@@ -19,8 +17,6 @@ static size_t max_size = 128;
 static const size_t step = 128;
 
 __attribute__((destructor)) static void trace_free(void) {
-    while (size)
-        trace_pop();
     free(stack);
 }
 
@@ -34,8 +30,8 @@ void trace_push(TRACE) {
         stack = realloc(stack, max_size * sizeof(Trace));
     }
 
-    stack[size].file = strdup(file);
-    stack[size].func = strdup(func);
+    stack[size].file = file;
+    stack[size].func = func;
     stack[size].line = line;
 
     size++;
@@ -43,8 +39,6 @@ void trace_push(TRACE) {
 
 void trace_pop(void) {
     size--;
-    free(stack[size].file);
-    free(stack[size].func);
 }
 
 void panic_impl(TRACE, bool expr, const char* fmt, ...) {
