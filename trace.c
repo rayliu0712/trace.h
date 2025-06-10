@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define TRACE const char *file, const char *func, int line
+#define TRACE_ARGS const char *file, const char *func, int line
 
 typedef struct {
     const char* file;
@@ -20,7 +20,7 @@ __attribute__((destructor)) static void trace_free(void) {
     free(stack);
 }
 
-void trace_push(TRACE) {
+void trace_impl_push(TRACE_ARGS) {
     if (!stack) {
         stack = malloc(max_size * sizeof(Trace));
     }
@@ -37,15 +37,15 @@ void trace_push(TRACE) {
     size++;
 }
 
-void trace_pop(void) {
+void trace_impl_pop(void) {
     size--;
 }
 
-void panic_impl(TRACE, bool expr, const char* fmt, ...) {
+void panic_impl(TRACE_ARGS, bool expr, const char* fmt, ...) {
     if (expr)
         return;
 
-    trace_push(file, func, line);
+    trace_impl_push(file, func, line);
 
     va_list args;
     va_start(args, fmt);
