@@ -14,27 +14,23 @@ void trace_impl_push(TRACE_ARGS);
 
 void trace_impl_pop(void);
 
-#define TRACE(expr) ({          \
-    trace_impl_push(GET_TRACE); \
-    expr;                       \
-    trace_impl_pop();           \
-})
-
-#define TRACE_R(expr) ({         \
-    trace_impl_push(GET_TRACE);  \
-    __typeof__(expr) r = (expr); \
-    trace_impl_pop();            \
-    r;                           \
-})
+#define TRACE(expr)                 \
+    do {                            \
+        trace_impl_push(GET_TRACE); \
+        (expr);                     \
+        trace_impl_pop();           \
+    } while (0)
 
 //
 // panic
 
 void panic_impl(TRACE_ARGS, bool expr, const char* fmt, ...);
 
-#define PANIC(expr, fmt, ...) panic_impl(GET_TRACE, (expr), (fmt), ##__VA_ARGS__)
+#define PANIC(expr, msg) panic_impl(GET_TRACE, (expr), (msg));
 
-#define PANIC_NULL(ptr) PANIC((ptr), "pointer \"%s\" is NULL", #ptr)
+#define PANIC_F(expr, fmt, ...) panic_impl(GET_TRACE, (expr), (fmt), __VA_ARGS__)
+
+#define PANIC_NULL(ptr) PANIC_F((ptr), "pointer \"%s\" is NULL", #ptr)
 
 #undef TRACE_ARGS
 

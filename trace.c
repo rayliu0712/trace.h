@@ -16,13 +16,14 @@ static size_t size = 0;
 static size_t max_size = 128;
 static const size_t step = 128;
 
-__attribute__((destructor)) static void trace_free(void) {
+static void trace_impl_free(void) {
     free(stack);
 }
 
 void trace_impl_push(TRACE_ARGS) {
     if (!stack) {
         stack = malloc(max_size * sizeof(Trace));
+        atexit(trace_impl_free);
     }
 
     if (size == max_size) {

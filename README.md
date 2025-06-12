@@ -7,26 +7,25 @@
 #include "trace.h"
 
 double divide(int a, int b) {
-    PANIC(b != 0, "divisor should not be 0");
+    PANIC_F(b != 0, "divisor should not be %d", b);
 
     return (double)a / b;
 }
 
-void index_and_print(int* arr, size_t index) {
-    PANIC_NULL(arr);
+void print_if_nonnull(void* ptr) {
+    PANIC_NULL(ptr);
 
-    printf("%d\n", arr[index]);
+    printf("%p\n", ptr);
 }
 
 int main(void) {
     // comment or uncomment below lines to see example
 
-    int a = 42;
-    int b = 0;
-    double result = TRACE_R(divide(a, b));
-    printf("%f\n", result);
+    double r;
+    TRACE(r = divide(1, 0));
+    printf("%f\n", r);
 
     int* arr = NULL;
-    TRACE(index_and_print(arr, 5));
+    TRACE(print_if_nonnull(arr));
 }
 ```
