@@ -7,12 +7,12 @@
 #include "trace.h"
 
 double divide(int a, int b) {
-    PANIC_F(b != 0, "divisor should not be %d", b);
+    PANIC(b != 0, "divisor should not be 0");
 
     return (double)a / b;
 }
 
-void print_if_nonnull(void* ptr) {
+void print_if_not_null(void* ptr) {
     PANIC_NULL(ptr);
 
     printf("%p\n", ptr);
@@ -26,6 +26,6 @@ int main(void) {
     printf("%f\n", r);
 
     int* arr = NULL;
-    TRACE(print_if_nonnull(arr));
+    TRACE(print_if_not_null(arr));
 }
 ```
