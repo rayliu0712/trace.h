@@ -21,10 +21,10 @@ void panic_impl(TRACE_ARGS, bool expr, const char* fmt, ...);
 
 #define GET_TRACE __FILE__, __func__, __LINE__
 
-#define TRACE(expr)                 \
+#define TRACE(stmt)                 \
     do {                            \
         trace_impl_push(GET_TRACE); \
-        (expr);                     \
+        (stmt);                     \
         trace_impl_pop();           \
     } while (0)
 
