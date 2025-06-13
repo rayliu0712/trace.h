@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define TRACE_ARGS const char *file, const char *func, int line
-
 typedef struct {
     const char* file;
     const char* func;
@@ -20,25 +18,27 @@ static void trace_impl_free(void) {
     free(stack);
 }
 
-void trace_impl_push(TRACE_ARGS) {
+char trace_impl_push(TRACE_ARGS) {
     if (!stack) {
         stack = malloc(max_size * sizeof(Trace));
         atexit(trace_impl_free);
-    }
-
-    if (size == max_size) {
+    } else if (size == max_size) {
         max_size += step;
         stack = realloc(stack, max_size * sizeof(Trace));
     }
 
-    stack[size].file = file;
-    stack[size].func = func;
-    stack[size].line = line;
+    stack[size].file = trace_file;
+    stack[size].func = trace_func;
+    stack[size].line = trace_line;
 
     size++;
+
+    return 0;
 }
 
-void trace_impl_pop(void) {
+void trace_impl_pop(void* ptr) {
+    (void)ptr;
+
     size--;
 }
 
@@ -46,8 +46,7 @@ void panic_impl(TRACE_ARGS, bool expr, const char* fmt, ...) {
     if (expr)
         return;
 
-    trace_impl_push(file, func, line);
-
+    trace_impl_push(trace_file, trace_func, trace_line);
     va_list args;
     va_start(args, fmt);
 

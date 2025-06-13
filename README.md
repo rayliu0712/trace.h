@@ -6,13 +6,15 @@
 #include <stdio.h>
 #include "trace.h"
 
-double divide(int a, int b) {
+double divide(TRACE_ARGS, int a, int b) {
+    TRACE_IT;
     PANIC(b != 0, "divisor should not be 0");
 
     return (double)a / b;
 }
 
-void print_if_not_null(void* ptr) {
+void print_addr_if_not_null(TRACE_ARGS, void* ptr) {
+    TRACE_IT;
     PANIC_NULL(ptr);
 
     printf("%p\n", ptr);
@@ -20,12 +22,10 @@ void print_if_not_null(void* ptr) {
 
 int main(void) {
     // comment or uncomment below lines to see example
-
-    double r;
-    TRACE(r = divide(1, 0));
+    
+    double r = divide(TRACE, 42, 0);
     printf("%f\n", r);
 
-    int* arr = NULL;
-    TRACE(print_if_not_null(arr));
+    print_addr_if_not_null(TRACE, NULL);
 }
 ```

@@ -4,34 +4,25 @@
 #include <stdbool.h>
 
 //
-/*    impl    */
+/*   api   */
 
-#define TRACE_ARGS const char *file, const char *func, int line
+#define TRACE __FILE__, __func__, __LINE__
 
-void trace_impl_push(TRACE_ARGS);
+#define TRACE_ARGS const char *trace_file, const char *trace_func, int trace_line
 
-void trace_impl_pop(void);
+#define TRACE_IT char trace_it __attribute__((cleanup(trace_impl_pop))) = trace_impl_push(trace_file, trace_func, trace_line)
 
-void panic_impl(TRACE_ARGS, bool expr, const char* fmt, ...);
+#define PANIC(expr, fmt, ...) panic_impl(TRACE, (expr), (fmt), ##__VA_ARGS__)
 
-#undef TRACE_ARGS
+#define PANIC_NULL(ptr) panic_impl(TRACE, (ptr), "pointer \"%s\" is NULL", #ptr)
 
 //
-/*    api    */
+/*   impl   */
 
-#define GET_TRACE __FILE__, __func__, __LINE__
+char trace_impl_push(TRACE_ARGS);
 
-#define TRACE(stmt)                 \
-    do {                            \
-        trace_impl_push(GET_TRACE); \
-        (stmt);                     \
-        trace_impl_pop();           \
-    } while (0)
+void trace_impl_pop(void* ptr);
 
-#define PANIC(expr, msg) panic_impl(GET_TRACE, (expr), (msg));
-
-#define PANIC_F(expr, fmt, ...) panic_impl(GET_TRACE, (expr), (fmt), __VA_ARGS__)
-
-#define PANIC_NULL(ptr) PANIC_F((ptr), "pointer \"%s\" is NULL", #ptr)
+void panic_impl(TRACE_ARGS, bool expr, const char* fmt, ...);
 
 #endif
